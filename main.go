@@ -25,6 +25,25 @@ func CheckSudokuIndex(args []string) bool {
 	return true
 }
 
+func CheckSudokuIndex3(args []string) bool {
+	for i := 1; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if args[i][j] == '.' {
+				continue
+			}
+			for k := i + 1; k < 3; k++ {
+				if args[k][j] == '.' {
+					continue
+				}
+				if args[i][j] == args[k][j] {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
 func CheckSudokuStr(arg string) bool {
 	for i := 0; i < len(arg); i++ {
 		if arg[i] == '.' {
@@ -58,9 +77,12 @@ func printsudoku(args []string) {
 
 func main() {
 	args := os.Args
-	if CheckSudokuIndex(args) {
+	printsudoku(args)
+	z01.PrintRune('\n')
+	if CheckSudokuIndex3(args) {
 		z01.PrintRune('o')
 	} else {
 		z01.PrintRune('f')
 	}
+	z01.PrintRune('\n')
 }
