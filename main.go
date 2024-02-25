@@ -60,10 +60,5 @@ func main() {
 	args := os.Args
 	printsudoku(args)
 	z01.PrintRune('\n')
-	if CheckSudokuIndex3(args) {
-		z01.PrintRune('o')
-	} else {
-		z01.PrintRune('f')
-	}
 	z01.PrintRune('\n')
 }
