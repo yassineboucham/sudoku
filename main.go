@@ -1,11 +1,31 @@
 package main
 
 import (
-	"github.com/01-edu/z01"
 	"os"
+
+	"github.com/01-edu/z01"
 )
 
-func CheckSudokuArr(arg string) bool {
+func CheckSudokuIndex(args []string) bool {
+	for i := 1; i < len(args); i++ {
+		for j := 0; j < len(args[i]); j++ {
+			if args[i][j] == '.' {
+				continue
+			}
+			for k := i + 1; k < len(args); k++ {
+				if args[k][j] == '.' {
+					continue
+				}
+				if args[i][j] == args[k][j] {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
+func CheckSudokuStr(arg string) bool {
 	for i := 0; i < len(arg); i++ {
 		if arg[i] == '.' {
 			continue
@@ -25,18 +45,22 @@ func CheckSudokuArr(arg string) bool {
 func printsudoku(args []string) {
 	for i := 1; i < len(args); i++ {
 		for j := 0; j < len(args[i]); j++ {
-			z01.PrintRune(rune(args[i][j]))
-			z01.PrintRune(' ')
+			if j != len(args[i])-1 {
+				z01.PrintRune(rune(args[i][j]))
+				z01.PrintRune(' ')
+			} else {
+				z01.PrintRune(rune(args[i][j]))
+			}
 		}
 		z01.PrintRune('\n')
 	}
 }
 
-func main(){
+func main() {
 	args := os.Args
-	if CheckSudokuArr(args[1]) {
+	if CheckSudokuIndex(args) {
 		z01.PrintRune('o')
 	} else {
-		z01.PrintRune('n')
+		z01.PrintRune('f')
 	}
 }
