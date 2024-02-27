@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/01-edu/z01"
 )
 
-func CheckSudokuIndex(args []string) bool {
+/* ------- Check_Sudoku_Index --------*/
+func CheckSudokuIndex(args [][]rune) bool {
 	for i := 0; i < len(args); i++ {
 		for j := 0; j < len(args[i]); j++ {
 			if args[i][j] == '.' {
@@ -25,12 +27,9 @@ func CheckSudokuIndex(args []string) bool {
 	return true
 }
 
-func CheckSudokuStr(args []string) bool {
-	for _, arg := range args {
-		for i := 0; i < len(arg); i++ {
-			if arg[i] == '.' {
-				continue
-			}
+/* ------- Check_Sudoku_Str --------*/
+func CheckSudokuStr(args [][]rune) bool {
+	for i, arg := range args {
 			for j := i + 1; j < len(arg); j++ {
 				if arg[i] == '.' {
 					continue
@@ -39,17 +38,44 @@ func CheckSudokuStr(args []string) bool {
 					return false
 				}
 			}
-		}
 	}
 	return true
 }
 
-func SendArgs3(args [][]rune, x int, y int, nb rune) bool {
+/* ------- Number_Args_Reapet --------*/
+func NumberArgsReapet(args [][]rune, x int, y int, nb rune) int {
 	x_index := x - x%3
 	y_index := y - y%3
+	var rep int
 	for i := x_index; i < x_index+3; i++ {
 		for j := y_index; j < y_index+3; j++ {
 			if args[i][j] == nb {
+				rep++
+			}
+		}
+	}
+	return rep
+}
+
+/* ------- Check_InBox --------*/
+func CheckInBox(args [][]rune) bool {
+	for i := 0; i < len(args); i++ {
+		for j := 0; j < len(args[i]); j++ {
+			if NumberArgsReapet(args, i, j, args[i][j]) == 1 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+/* ------- Is_Number --------*/
+func IsNumber(args [][]rune) bool {
+	for i := 0; i < len(args); i++ {
+		for j := 0; j < len(args[i]); j++ {
+			if args[i][j] == '.' || (args[i][j] >= '1' && args[i][j] <= '9') {
+				continue
+			} else {
 				return false
 			}
 		}
@@ -57,80 +83,117 @@ func SendArgs3(args [][]rune, x int, y int, nb rune) bool {
 	return true
 }
 
-func check_nb_in_9number(nb []rune, n rune) bool {
-	for i := 0; i < len(nb); i++ {
-		if nb[i] == n {
-			return false
-		}
-	}
-	return true
-}
-
-// func CheckSudoku3(args []string) {
-// 	var index int
-// 	for xi := index; xi <= len(args)-1; xi += 3 {
-// 		fmt.Println(xi)
-// 		for xj := xi + 1; xj < xi+3; xj++ {
-// 			fmt.Println(xj)
-// 			for yi := 0; yi <= 3; yi++ {
-// 				for yj := 0; yj < 3; yj++ {
-// 					if args[xj][yj] == args[xi][xj] {
-// 						fmt.Println(args[xj][yj], " = ", args[xi][xj])
-// 					}
-// 				}
-// 			}
-// 		}
-// 		index = xi
-// 	}
-// }
-
-func CheckSudoku(args []string) bool {
-	if CheckSudokuStr(args) && CheckSudokuIndex(args) {
+/* ------- Check_Sudoku --------*/
+func CheckSudoku(args [][]rune) bool {
+	if CheckSudokuStr(args) && CheckSudokuIndex(args) && CheckInBox(args) && IsNumber(args) {
 		return true
 	}
 	return false
 }
 
-func printsudoku(args []string) {
-	for i := 1; i < len(args); i++ {
+/* ------- print_sudoku --------*/
+func printsudoku(args [][]rune) {
+	for i := 0; i < len(args); i++ {
 		for j := 0; j < len(args[i]); j++ {
 			if j != len(args[i])-1 {
-				z01.PrintRune(rune(args[i][j]))
+				z01.PrintRune(args[i][j])
 				z01.PrintRune(' ')
 			} else {
-				z01.PrintRune(rune(args[i][j]))
+				z01.PrintRune(args[i][j])
 			}
 		}
 		z01.PrintRune('\n')
 	}
 }
 
+/* ------- SolveSudoku --------*/
+func SolveSudoku(grid [][]rune) bool {
+	emptyCell := findEmptyCell(grid)
+	if emptyCell == nil {
+		return true
+	}
+
+	row, col := emptyCell[0], emptyCell[1]
+
+	for num := '1'; num <= '9'; num++ {
+		if isSafe(grid, row, col, num) {
+			grid[row][col] = num
+
+			if SolveSudoku(grid) {
+				return true
+			}
+
+			grid[row][col] = '.'
+		}
+	}
+	return false
+}
+
+func findEmptyCell(grid [][]rune) []int {
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[i]); j++ {
+			if grid[i][j] == '.' {
+				return []int{i, j}
+			}
+		}
+	}
+	return nil
+}
+
+func isSafe(grid [][]rune, row, col int, num rune) bool {
+	return !usedInRow(grid, row, num) &&
+		!usedInCol(grid, col, num) &&
+		!usedInBox(grid, row-row%3, col-col%3, num)
+}
+
+func usedInRow(grid [][]rune, row int, num rune) bool {
+	for i := 0; i < len(grid[row]); i++ {
+		if grid[row][i] == num {
+			return true
+		}
+	}
+	return false
+}
+
+func usedInCol(grid [][]rune, col int, num rune) bool {
+	for i := 0; i < len(grid); i++ {
+		if grid[i][col] == num {
+			return true
+		}
+	}
+	return false
+}
+
+func usedInBox(grid [][]rune, boxStartRow, boxStartCol int, num rune) bool {
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if grid[i+boxStartRow][j+boxStartCol] == num {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+/* ------- main --------*/
 func main() {
-	// args := os.Args[1:]
-	// fmt.Println("suduku")
-	// printsudoku(args)
-	// z01.PrintRune('\n')
-	// fmt.Println("---------------------------------------------------------------")
-	// z01.PrintRune('\n')
-	// if CheckSudoku(args) {
-	// 	fmt.Println("is good :)")
-	// } else {
-	// 	fmt.Println("is not good <_>")
-	// }
-	// fmt.Println("---------------------------------------------------------------")
-	// // z01.PrintRune('\n')
-	// // CheckSudoku3(args)
+	args := os.Args[1:]
 
-	sudoku := [][]rune{}
-	sudoku = append(sudoku, {})
-	sudoku[0] = append(sudoku[0], '3')
-	sudoku[1] = append(sudoku[1], '4')
-	// for i, v := range args {
-	// 	for _, v2 := range v {
+	grid := make([][]rune, 9)
+	for i := range grid {
+		grid[i] = make([]rune, 9)
+		for j, char := range args[i] {
+			grid[i][j] = char
+		}
+	}
 
-	// 	}
-	// }
+	if SolveSudoku(grid) {
+		printsudoku(grid)
+	} else {
+		fmt.Println("No solution exists.")
+	}
 
-	fmt.Print(sudoku)
-	fmt.Println()
+	if CheckSudoku(grid) {
+		z01.PrintRune('o')
+	}
 }
