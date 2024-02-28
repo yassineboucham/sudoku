@@ -30,14 +30,14 @@ func CheckSudokuIndex(args [][]rune) bool {
 /* ------- Check_Sudoku_Str --------*/
 func CheckSudokuStr(args [][]rune) bool {
 	for i, arg := range args {
-			for j := i + 1; j < len(arg); j++ {
-				if arg[i] == '.' {
-					continue
-				}
-				if arg[i] == arg[j] {
-					return false
-				}
+		for j := i + 1; j < len(arg); j++ {
+			if arg[i] == '.' {
+				continue
 			}
+			if arg[i] == arg[j] {
+				return false
+			}
+		}
 	}
 	return true
 }
@@ -186,14 +186,11 @@ func main() {
 			grid[i][j] = char
 		}
 	}
-
-	if SolveSudoku(grid) {
-		printsudoku(grid)
-	} else {
-		fmt.Println("No solution exists.")
-	}
-
 	if CheckSudoku(grid) {
-		z01.PrintRune('o')
+		if SolveSudoku(grid) {
+			printsudoku(grid)
+		} else {
+			fmt.Println("Error")
+		}
 	}
 }
